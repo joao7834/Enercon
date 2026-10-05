@@ -1,0 +1,136 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+.fCont {
+    display: flex;
+    min-height: 100vh;
+}
+
+.mainContent {
+    flex: 1;
+    padding: 2.5rem;
+    overflow: auto;
+}
+
+.secHeader {
+    margin-bottom: 2rem;
+}
+
+.secHeader h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.secHeader p {
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+}
+
+.metricsGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.metricCard {
+    display: flex;
+    flex: 1 1 220px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.cardIcon {
+    display: flex;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    .cardIcon img {
+    object-fit: contain;
+    }
+}
+
+.cardIcon.cyan {background: rgba(56, 189, 248, 0.1); }
+.cardIcon.amber {background: rgba(245, 158, 11, 0.1); }
+.cardIcon.green {background: rgba(34, 197, 94, 0.1); }
+.cardIcon.purple {background: rgba(168, 85, 247, 0.1); }
+
+.cardData h3 {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 400;   
+}
+
+.cardData .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 0.2rem;
+}
+
+.contentBox {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.contentBox h2 {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+    color: var(--primary);
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.dataTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.dataTable td {
+    padding: 1rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.dataTable th {
+    padding: 1rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge.sucess {background: rgba(34, 197, 94, 0.1); color: var(--green)}
+.badge.sucess {background: rgba(245, 158, 11, 0.1); color: var(--amber);}
+
+a{
+    text-decoration: none;
+}
+a:hover{
+    text-decoration: none;
+}

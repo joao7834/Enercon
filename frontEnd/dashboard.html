@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enercon IoT - Dashboard</title>
+    <link rel="stylesheet" href="src/style/style.css" />
+    <script src="src/script/dashboard.js" defer></script>
+  </head>
+  <body>
+    <div class="fCont">
+      <!-- Sidebar / Navegação -->
+      <aside class="sidebar">
+        <div class="logo">
+          <img src="src/assets/whiteRaioBranco.png" alt="Enercon Logo" class="logoIcon"
+          width="35px" height="35px" />
+          <h2>Ener<span>con</span></h2>
+        </div>
+
+        <nav class="nMenu">
+          <a href="index.html" class="nButton">
+            <img src="src/assets/whitePessoaCaneta.png" alt="Ícone Cadastro" 
+            width="35px" height="35px"/>
+              Cadastro
+          </a>
+          <a href="dashboard.html" class="nButton active">
+            <img src="src/assets/whiteDashboard.png" alt="Ícone Dashboard"
+            width="35px" height="35px" />
+              Dashboard 
+          </a>
+        </nav>
+
+        <div class="sysStats">
+          <p>ESP32 Conectado</p>
+          <span class="statsDot online"></span>
+        </div>
+      </aside>
+
+      <main class="mainContent">
+        <section id="dashboard" class="pageSection">
+          <header class="secHeader">
+            <h1>Monitoramento em Tempo Real</h1>
+            <p>Telemetria do sensor ESP32 / ID ESP32</p>
+          </header>
+
+          <!-- GRID DE MÉTRICAS CORRIGIDO -->
+          <div class="metricsGrid">
+            <!-- Tensão -->
+            <div class="metricCard">
+              <div class="cardIcon cyan">
+                <img src="src/assets/whiteTensao.png" alt="energyIcon" width="35px" height="35px">
+              </div>
+              <div class="cardData">
+                <h3>Tensão</h3>
+                <p class="value" id="valTensao">127 <small>V</small></p>
+              </div>
+            </div>
+
+            <!-- Corrente -->
+            <div class="metricCard">
+              <div class="cardIcon amber">
+                <img src="src/assets/whiteCorrente.png" alt="correnteIcon" width="35px" height="35px">
+              </div>
+              <div class="cardData">
+                <h3>Corrente</h3>
+                <p class="value" id="valCorrente">2.5 <small>A</small></p>
+              </div>
+            </div>
+
+            <!-- Potência -->
+            <div class="metricCard">
+              <div class="cardIcon green">
+                <img src="src/assets/whitePotencia.png" alt="lightIcon" width="35px" height="35px">
+              </div>
+              <div class="cardData">
+                <h3>Potência</h3>
+                <p class="value" id="valPotencia">317.5 <small>W</small></p>
+              </div>
+            </div>
+
+            <!-- Consumo Estimado -->
+            <div class="metricCard">
+              <div class="cardIcon purple">
+                <img src="src/assets/whiteConsumo.png" alt="graphIcon" width="35px" height="35px">
+              </div>
+              <div class="cardData">
+                <h3>Consumo Estimado</h3>
+                <p class="value" id="valConsumo">0.31 <small>kWh</small></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="contentBox">
+            <h2>Histórico de Telemetria</h2>
+            <div class="tableWrapper">
+              <table class="dataTable">
+                <thead>
+                  <tr>
+                    <th>Horário</th>
+                    <th>Sensor</th>
+                    <th>Tensão</th>
+                    <th>Corrente</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="telemetryBody">
+                  <tr>
+                    <td>14:30:12</td>
+                    <td>ESP32_01</td>
+                    <td>127.1 V</td>
+                    <td>2.5 A</td>
+                    <td><span class="badge success">Estável</span></td>
+                  </tr>
+                  <tr>
+                    <td>14:30:02</td>
+                    <td>ESP32_01</td>
+                    <td>128.4 V</td>
+                    <td>3.1 A</td>
+                    <td><span class="badge warning">Oscilação</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
