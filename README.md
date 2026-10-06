@@ -1,6 +1,6 @@
 # ⚡ Sistema de Monitoramento Energético e Ambiental com ESP32
 
-Projeto desenvolvido em **C++** para simulação no **Wokwi**, com foco na leitura de consumo elétrico residencial (simulado via sensor ACS712) e variáveis ambientais (DHT22), exibindo os dados em tempo real em um Display OLED SSD1306 e com proteção contra sobrecarga via Módulo Relé.
+Projeto desenvolvido em **C++**, **Golang**, **Java** e **JS**, com foco na leitura de consumo elétrico residencial (via sensor ACS712) e variáveis ambientais (DHT22), exibindo os dados em tempo real em um Display OLED SSD1306 e com proteção contra sobrecarga via Módulo Relé.
 
 ---
 
@@ -40,3 +40,11 @@ Projeto desenvolvido em **C++** para simulação no **Wokwi**, com foco na leitu
 2. Instale as bibliotecas listadas acima através do Library Manager.
 3. [Clique aqui para acessar a simulação interativa no Wokwi](https://wokwi.com/projects/473257740043417601
    ).
+
+---
+
+## Andamento
+
+O projeto atual está em constante evolução, com cada um dos membros fazendo o seguinte papel:
+1. João: Elaboração do código em .ino, para o funcionamento da esp32, juntamente da elaboração da API Rest, arquitetada em Golang, com aplicações full stack em front-end.
+2. Davi Ciriaco Napoli: Aplicação de Servidor modelo Rest para a comunicação entre as vertentes BackEnd e FrontEnd do Projeto, participação na página principal do projeto e o encapsulamento de seus dados para uma maior segurança de dados.
