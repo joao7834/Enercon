@@ -10,7 +10,7 @@ const char *SSID = "Wokwi-GUEST";
 const char *PASS = "";
 
 // Golang URL
-const char *GO_API_URL = "http://host.wokwi.internal:8080/api/telemetria";
+const char *GO_API_URL = "http://192.168.X.X:8080/api/telemetria"; // X = IP real
 
 // Oled
 const int SC_WD = 128; // Screen width
@@ -19,7 +19,7 @@ const int OL_RST = -1; // Oled Reset
 Adafruit_SSD1306 display(SC_WD, SC_HG, &Wire, OL_RST);
 
 // Pinos
-const int P_POT = 34;
+const int P_ACS = 34;
 const int P_DHT = 15;
 const int P_RLY = 18;
 const int P_SDA = 21;
@@ -112,19 +112,44 @@ void goSolic(float cor, float potn, float temp, float umid)
   http.end();
 }
 
+float calcCrRMS() {
+  unsigned long initTime = millis();
+  float somaQuad = 0;
+  int numAm = 0;
+
+  while(millis() - initTime < 100) {
+    int raw = analogRead(P_ACS);
+    float tenPin = (raw / 4095.0) * 3.3;
+    float tenACS = tenPin * 1.5;
+    float tenOFF = 2.50;
+    float dif = tenACS - tenOFF;
+    somaQuad += dif * dif;
+    numAm++;
+  }
+  float medQuad = somaQuad / numAm;
+  float tenRMS = sqrt(medQuad);
+  float crRMS = tenRMS / 0.100;
+  if (crRMS < 0.1) {
+    crRMS = 0;
+  }
+  return crRMS;
+}
+
 void setup()
 {
   Serial.begin(115200);
   delay(1000);
-
+  
   Serial.println("Iniciando ESP32");
+  
   // Relay
   pinMode(P_RLY, OUTPUT);
   digitalWrite(P_RLY, 1);
 
   // ADC Esp32
+  analogSetAttenuation(ADC_11db);
   analogReadResolution(12);
-  pinMode(P_POT, INPUT);
+  pinMode(P_ACS, INPUT);
 
   // DHT22
   dht.begin();
@@ -152,8 +177,7 @@ void setup()
 void loop()
 {
   // Leitura do ACS712
-  int lt = analogRead(P_POT);
-  float cr = (lt / 4095.0) * M_COR;
+  float cr = calcCrRMS();
   float pt = R_TNS * cr;
 
   // Leitura do DHT22
