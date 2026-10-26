@@ -10,7 +10,10 @@ const char *SSID = "Wokwi-GUEST";
 const char *PASS = "";
 
 // Golang URL
-const char *GO_API_URL = "http://192.168.X.X:8080/api/telemetria"; // X = IP real
+const char *GO_API_URL = "http://10.244.200.253:8080/telemetria";
+
+// ID Dinâmico da ESP32
+String espID = "";
 
 // Oled
 const int SC_WD = 128; // Screen width
@@ -29,9 +32,9 @@ const int P_SCL = 22;
 const int DHT_TYPE = DHT22;
 DHT dht(P_DHT, DHT_TYPE);
 
-const float R_TNS = 127.0; // Tensão residencial simulada
+const float R_TNS = 127.0; // Tensão simulada
 const float M_COR = 10.0;  // Corrente máxima
-const float L_COR = 7.0;   // Limite de proteção pra desligar o relay
+const float L_COR = 7.0;   // Limite relay
 
 unsigned long lSolic = 0;
 const unsigned long DELAY_ENVIO = 3000; // Envia a cada 3s
@@ -75,12 +78,12 @@ void goSolic(float cor, float potn, float temp, float umid)
   http.begin(GO_API_URL);
   http.addHeader("Content-Type", "application/json");
 
-  // JSON
   String jsonPayload = "{";
   jsonPayload += "\"corrente\":" + String(cor, 2) + ",";
   jsonPayload += "\"potencia\":" + String(potn, 1) + ",";
   jsonPayload += "\"temperatura\":" + String(temp, 1) + ",";
-  jsonPayload += "\"umidade\":" + String(umid, 1);
+  jsonPayload += "\"umidade\":" + String(umid, 1) + ",";
+  jsonPayload += "\"espID\":\"" + espID + "\"";
   jsonPayload += "}";
 
   Serial.print("Enviando para o Go: ");
@@ -141,20 +144,22 @@ void setup()
   delay(1000);
   
   Serial.println("Iniciando ESP32");
+
+  uint32_t randomNumber = esp_random();
+  espID = "ESP_" + String(randomNumber, HEX);
+  espID.toUpperCase(); // Deixa em maiúsculas para ficar mais limpo
+  Serial.print("ID Gerado para esta ESP32: ");
+  Serial.println(espID);
   
-  // Relay
   pinMode(P_RLY, OUTPUT);
   digitalWrite(P_RLY, 1);
 
-  // ADC Esp32
   analogSetAttenuation(ADC_11db);
   analogReadResolution(12);
   pinMode(P_ACS, INPUT);
 
-  // DHT22
   dht.begin();
 
-  // OLED I2C
   Wire.begin(P_SDA, P_SCL);
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
   {
@@ -202,7 +207,6 @@ void loop()
     digitalWrite(P_RLY, 1);
   }
 
-  // Exibição no monitor serial
   Serial.print("Temp: ");
   Serial.print(tm, 1);
   Serial.print("C | ");
@@ -217,7 +221,6 @@ void loop()
   Serial.print("W | ");
   Serial.println(proAt ? " [ALERTA: SOBRECARGA!]" : "[STATUS: OK]");
 
-  // Atualiza o Display OLED
   display.clearDisplay();
 
   display.setTextSize(1);
