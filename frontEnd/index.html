@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enercon IoT - Cadastro</title>
+    <link rel="stylesheet" href="src/style/style.css" />
+    <script src="src/script/script.js" defer></script>
+  </head>
+  <body>
+    <div class="fCont">
+      <aside class="sidebar">
+        <div class="cntContainer">
+          <div class="logo">
+            <img src="src/assets/whiteRaioBranco.png" alt="logo" width="35px" height="35px"/>
+            <h2>Ener<span>con</span></h2>
+          </div>
+          <nav class="nMenu">
+            <a href="index.html" class="nButton active">
+              <img src="src/assets/whitePessoaCaneta.png" alt="cadSymbol" width="35px" height="35px"/>
+              Cadastro  
+            </a>
+            <a href="dashboard.html" class="nButton">
+              <img src="src/assets/whiteDashboard.png" alt="graphSymbol" width="35px" height="35px"/> 
+              Dashboard  
+            </a>
+          </nav>
+          <div class="sysStats">
+            <p>ESP32 Conectado</p>
+            <span class="statsDot online"></span>
+          </div>
+        </div> <!-- Fechamento do cntContainer que faltava -->
+      </aside>
+
+      <main class="mainContent">
+  <section id="formCad">
+    <div class="contentWrapper">
+      
+      <div class="formColumn">
+        <header class="secHeader">
+          <h1>Novo Usuário!</h1>
+          <p>Cadastre usuários e administradores no sistema!</p>
+        </header>
+
+        <form id="formSec" class="styledForm">
+          <div class="inputGroup">
+            <label for="nameInput">Nome</label>
+            <input
+              type="text"
+              id="nameInput"
+              placeholder="Exemplo: João Victor de Moraes"
+              required
+            />
+          </div>
+
+          <div class="inputGroup">
+            <label for="emailInput">E-mail</label>
+            <input
+              type="email"
+              id="emailInput"
+              placeholder="Exemplo: exemplo@gmail.com"
+              required
+            />
+          </div>
+
+          <div class="inputGroup">
+            <label for="levelInput">Nível de usuário</label>
+            <select id="levelInput" required>
+              <option value="USER">Usuário Normal</option>
+              <option value="ADMIN">Usuário Admin</option>
+            </select>
+          </div>
+
+          <div id="cadUser">
+            <button type="submit" class="btnSubmit">
+              Cadastrar Usuário!
+            </button>
+          </div>
+
+          <div id="feedbackMsg" class="feedbackMsg"></div>
+        </form>
+      </div>
+
+      <div class="usersColumn">
+        <header class="secHeader">
+          <h1>Usuários Cadastrados</h1>
+          <p>Consulte os usuários já registrados no sistema!</p>
+        </header>
+
+        <div class="div_cds_users">
+          <section class="cds_users">
+            <div class="name">
+              <h5>Nome : Joanitos Norman Oscorp</h5>
+            </div>
+            <div class="type">
+              <h6>Tipo : Usuário Admin</h6>
+            </div>
+          </section>
+
+          <section class="cds_users">
+            <div class="name">
+              <h5>Nome : Cereal Bocarra Quiles</h5>
+            </div>
+            <div class="type">
+              <h6>Tipo : Usuário Normal</h6>
+            </div>
+          </section>
+
+          <section class="cds_users">
+            <div class="name">
+              <h5>Nome : Beach R. Tenis</h5>
+            </div>
+            <div class="type">
+              <h6>Tipo : Usuário Admin</h6>
+            </div>
+          </section>
+
+          <section class="cds_users">
+            <div class="name">
+              <h5>Nome : Rogério Motorista de Uber</h5>
+            </div>
+            <div class="type">
+              <h6>Tipo : Usuário Normal</h6>
+            </div>
+          </section>
+
+          </section>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+    </div>
+  </body>
+</html>

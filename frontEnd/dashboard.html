@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enercon IoT - Dashboard</title>
+    <link rel="stylesheet" href="src/style/style.css" />
+    <!-- Chart.js CDN para gráficos em tempo real -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="src/script/dashboard.js" defer></script>
+  </head>
+  <body>
+    <div class="fCont">
+      <aside class="sidebar">
+        <div class="cntContainer">
+          <div class="logo">
+            <img
+              src="src/assets/whiteRaioBranco.png"
+              alt="logo"
+              width="35px"
+              height="35px"
+            />
+            <h2>Ener<span>con</span></h2>
+          </div>
+
+          <nav class="nMenu">
+            <a href="index.html" class="nButton">
+              <img
+                src="src/assets/whitePessoaCaneta.png"
+                alt="cadSymbol"
+                width="35px"
+                height="35px"
+              />
+              Cadastro
+            </a>
+            <a href="dashboard.html" class="nButton active">
+              <img
+                src="src/assets/whiteDashboard.png"
+                alt="graphSymbol"
+                width="35px"
+                height="35px"
+              />
+              Dashboard
+            </a>
+          </nav>
+
+          <div class="sysStats">
+            <p>ESP32 Conectado</p>
+            <span class="statsDot online" id="statusDot"></span>
+          </div>
+        </div>
+      </aside>
+
+      <main class="mainContent">
+        <section id="dashboard" class="pageSection">
+          <!-- CABEÇALHO DA SEÇÃO COM BOTÃO DE VOLTAR -->
+          <div class="dashHeaderWrapper">
+            <header class="secHeader">
+              <h1>Monitoramento em Tempo Real</h1>
+              <p>Telemetria do sensor ESP32 / Sistema de Proteção Energética</p>
+            </header>
+            <a href="index.html" class="btnVoltar"> ← Voltar ao Cadastro </a>
+          </div>
+
+          <!-- GRID DE MÉTRICAS -->
+          <div class="metricsGrid">
+            <!-- Tensão -->
+            <div class="metricCard">
+              <div class="cardIcon cyan">
+                <img
+                  src="src/assets/whiteTensao.png"
+                  alt="Tensão"
+                  width="30px"
+                  height="30px"
+                />
+              </div>
+              <div class="cardData">
+                <h3>Tensão</h3>
+                <p class="value" id="valTensao">127.0 <small>V</small></p>
+              </div>
+            </div>
+
+            <!-- Corrente -->
+            <div class="metricCard">
+              <div class="cardIcon amber">
+                <img
+                  src="src/assets/whiteCorrente.png"
+                  alt="Corrente"
+                  width="30px"
+                  height="30px"
+                />
+              </div>
+              <div class="cardData">
+                <h3>Corrente RMS</h3>
+                <p class="value" id="valCorrente">0.00 <small>A</small></p>
+              </div>
+            </div>
+
+            <!-- Potência -->
+            <div class="metricCard">
+              <div class="cardIcon green">
+                <img
+                  src="src/assets/whitePotencia.png"
+                  alt="Potência"
+                  width="30px"
+                  height="30px"
+                />
+              </div>
+              <div class="cardData">
+                <h3>Potência Ativa</h3>
+                <p class="value" id="valPotencia">0.0 <small>W</small></p>
+              </div>
+            </div>
+
+            <!-- Consumo Estimado -->
+            <div class="metricCard">
+              <div class="cardIcon purple">
+                <img
+                  src="src/assets/whiteConsumo.png"
+                  alt="Consumo"
+                  width="30px"
+                  height="30px"
+                />
+              </div>
+              <div class="cardData">
+                <h3>Consumo Acumulado</h3>
+                <p class="value" id="valConsumo">0.00 <small>kWh</small></p>
+              </div>
+            </div>
+
+            <!-- Temperatura (DHT22) -->
+            <div class="metricCard">
+              <div class="cardIcon red">
+                <small
+                  style="font-weight: bold; font-size: 1.2rem; color: #ef4444"
+                  >°C</small
+                >
+              </div>
+              <div class="cardData">
+                <h3>Temperatura</h3>
+                <p class="value" id="valTemperatura">-- <small>°C</small></p>
+              </div>
+            </div>
+
+            <!-- Umidade (DHT22) -->
+            <div class="metricCard">
+              <div class="cardIcon cyan">
+                <small
+                  style="font-weight: bold; font-size: 1.2rem; color: #38bdf8"
+                  >%</small
+                >
+              </div>
+              <div class="cardData">
+                <h3>Umidade Relativa</h3>
+                <p class="value" id="valUmidade">-- <small>%</small></p>
+              </div>
+            </div>
+
+            <!-- Status do Relé de Proteção -->
+            <div class="metricCard">
+              <div class="cardIcon green" id="releIconBg">
+                <span class="statusBadge" id="releDot"></span>
+              </div>
+              <div class="cardData">
+                <h3>Estado do Relé</h3>
+                <p
+                  class="value"
+                  id="valRele"
+                  style="font-size: 1.2rem; color: var(--green)"
+                >
+                  OPERACIONAL
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ÁREA DO GRÁFICO DE HISTÓRICO -->
+          <div class="contentBox chartBox">
+            <h2>Gráfico de Potência em Tempo Real (W)</h2>
+            <div class="chartWrapper">
+              <canvas id="powerChart"></canvas>
+            </div>
+          </div>
+
+          <!-- TABELA DE TELEMETRIA -->
+          <div class="contentBox">
+            <h2>Últimas Leituras de Telemetria</h2>
+            <div class="tableWrapper">
+              <table class="dataTable">
+                <thead>
+                  <tr>
+                    <th>Horário</th>
+                    <th>ID Dispositivo</th>
+                    <th>Corrente (A)</th>
+                    <th>Potência (W)</th>
+                    <th>Temp (°C)</th>
+                    <th>Umid (%)</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="telemetryBody">
+                  <tr>
+                    <td>--:--:--</td>
+                    <td>Aguardando dados...</td>
+                    <td>0.00 A</td>
+                    <td>0.0 W</td>
+                    <td>-- °C</td>
+                    <td>-- %</td>
+                    <td><span class="badge success">Aguardando</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
