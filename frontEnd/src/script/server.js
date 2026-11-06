@@ -1,12 +1,12 @@
 const http = require("http");
 
-const PORT_JAVA_RECEIVER = 8082;
+const PORT = 8082;
 
-// Lista para armazenar o histórico de telemetria em memória (máximo de 50 registros)
+// Histórico em memória
 const historicoTelemetria = [];
-const MAX_HISTORICO_MEMORIA = 50;
+const MAX_HISTORICO = 50;
 
-const serverParaJava = http.createServer((req, res) => {
+const server = http.createServer((req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -17,7 +17,7 @@ const serverParaJava = http.createServer((req, res) => {
     return;
   }
 
-  // ROTA GET: Retorna a última leitura (para o tempo real)
+  // 1. ROTA GET: O Dashboard busca a leitura atual
   if (req.method === "GET" && req.url === "/telemetria-atual") {
     const ultima =
       historicoTelemetria.length > 0
@@ -26,22 +26,23 @@ const serverParaJava = http.createServer((req, res) => {
             corrente: 0,
             potencia: 0,
             temperatura: 0,
-            umidade: 55,
+            umidade: 0,
             espID: "OFFLINE",
           };
+
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(ultima));
     return;
   }
 
-  // ROTA GET: Retorna o histórico completo para permitir visualizar leituras antigas
+  // 2. ROTA GET: O Dashboard busca o histórico completo e a tabela
   if (req.method === "GET" && req.url === "/telemetria-historico") {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(historicoTelemetria));
     return;
   }
 
-  // ROTA POST: Recebe os dados da ESP32/Java
+  // 3. ROTA POST: O Java (Cheddar.java) envia os dados para cá
   if (req.method === "POST") {
     let corpoDados = "";
 
@@ -52,52 +53,38 @@ const serverParaJava = http.createServer((req, res) => {
     req.on("end", () => {
       try {
         let corpoCorrigido = corpoDados.replace(/(\d+),(\d+)/g, "$1.$2");
-        corpoCorrigido = corpoCorrigido.replace(
-          /([{,]\s*)([a-zA-Z0-9_]+)\s*:/g,
-          '$1"$2":',
-        );
+        const dadosRecebidos = JSON.parse(corpoCorrigido);
 
-        const jsonRecebidoDoJava = JSON.parse(corpoCorrigido);
+        // Adiciona timestamp formatado
+        dadosRecebidos.timestamp = new Date().toLocaleTimeString("pt-BR");
 
-        // Adiciona a data/hora exata do registro no servidor
-        jsonRecebidoDoJava.timestamp = new Date().toLocaleTimeString("pt-BR");
-
-        // Insere no início do array de histórico
-        historicoTelemetria.unshift(jsonRecebidoDoJava);
-
-        // Limita o tamanho máximo para não estourar a memória
-        if (historicoTelemetria.length > MAX_HISTORICO_MEMORIA) {
+        // Salva no topo do histórico
+        historicoTelemetria.unshift(dadosRecebidos);
+        if (historicoTelemetria.length > MAX_HISTORICO) {
           historicoTelemetria.pop();
         }
 
-        const { corrente, potencia, temperatura, umidade, espID } =
-          jsonRecebidoDoJava;
-
         console.log(
-          `📥 [HISTÓRICO] Dado salvo - ID: ${espID} | Corrente: ${corrente}A | Potência: ${potencia}W`,
+          `📥 [DASHBOARD ATUALIZADO] ID: ${dadosRecebidos.espID} | Corr: ${dadosRecebidos.corrente}A | Pot: ${dadosRecebidos.potencia}W`,
         );
 
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            status: "Sucesso",
-            detalhe: "Salvo no histórico com sucesso",
-          }),
-        );
+        res.end(JSON.stringify({ status: "Sucesso" }));
       } catch (erro) {
-        console.error("❌ Erro ao processar o JSON:", erro.message);
+        console.error("❌ Erro ao parsear JSON no server.js:", erro.message);
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ erro: "JSON inválido" }));
       }
     });
-  } else {
-    res.writeHead(404, { "Content-Type": "text/plain" });
-    res.end("Rota não encontrada");
+    return;
   }
+
+  res.writeHead(404, { "Content-Type": "text/plain" });
+  res.end("Rota não encontrada");
 });
 
-serverParaJava.listen(PORT_JAVA_RECEIVER, () => {
+server.listen(PORT, () => {
   console.log(
-    `[JS Server] Rodando com suporte a histórico na porta ${PORT_JAVA_RECEIVER}...`,
+    `[JS Server] Rodando e pronto para o Dashboard na porta ${PORT}...`,
   );
 });

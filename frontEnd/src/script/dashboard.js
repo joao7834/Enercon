@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const valCorrente = document.getElementById("valCorrente");
   const valPotencia = document.getElementById("valPotencia");
   const valConsumo = document.getElementById("valConsumo");
+  const valGasto = document.getElementById("valGasto"); // ID correspondente ao Gasto Estimado no HTML
   const valTemperatura = document.getElementById("valTemperatura");
   const valUmidade = document.getElementById("valUmidade");
   const valRele = document.getElementById("valRele");
@@ -13,6 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let consumoAcumuladoKWh = 0;
   let ultimaAtualizacao = Date.now();
+
+  // Tarifa de energia configurada (R$ 0,85 por kWh)
+  const TARIFA_KWH = 0.85;
 
   const ctx = document.getElementById("powerChart")?.getContext("2d");
   let powerChart = null;
@@ -55,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function atualizarDashboard() {
     try {
-      // 1. Busca os dados mais recentes para os Cards do Topo
+      // 1. Busca os dados atuais
       const resAtual = await fetch("http://localhost:8082/telemetria-atual");
       if (resAtual.ok) {
         const dados = await resAtual.json();
@@ -73,14 +77,22 @@ document.addEventListener("DOMContentLoaded", () => {
         if (valUmidade)
           valUmidade.innerHTML = `${parseFloat(dados.umidade || 0).toFixed(1)} <small>%</small>`;
 
-        // Cálculo de consumo
+        // Cálculo de consumo em kWh
         const agoraMs = Date.now();
         const intervaloHoras = (agoraMs - ultimaAtualizacao) / (1000 * 60 * 60);
         ultimaAtualizacao = agoraMs;
-        consumoAcumuladoKWh +=
-          (parseFloat(dados.potencia || 0) / 1000) * intervaloHoras;
+
+        const potenciaW = parseFloat(dados.potencia || 0);
+        consumoAcumuladoKWh += (potenciaW / 1000) * intervaloHoras;
+
         if (valConsumo)
           valConsumo.innerHTML = `${consumoAcumuladoKWh.toFixed(4)} <small>kWh</small>`;
+
+        // Cálculo dinâmico do Gasto em R$
+        const gastoTotalReais = consumoAcumuladoKWh * TARIFA_KWH;
+        if (valGasto) {
+          valGasto.innerHTML = `R$ ${gastoTotalReais.toFixed(2).replace(".", ",")}`;
+        }
 
         // Estado do relé
         const correnteAtual = parseFloat(dados.corrente || 0);
@@ -97,38 +109,42 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // 2. Busca o histórico completo armazenado no servidor para preencher a tabela e o gráfico com os dados antigos
+      // 2. Busca o histórico para a tabela e gráfico
       const resHist = await fetch("http://localhost:8082/telemetria-historico");
       if (resHist.ok) {
         const historico = await resHist.json();
 
         if (historico.length > 0 && telemetryBody) {
           telemetryBody.innerHTML = historico
-            .map((item) => {
+            .map((item, index) => {
               const corrente = parseFloat(item.corrente || 0);
+              const potencia = parseFloat(item.potencia || 0);
+
               let badge = '<span class="badge success">Estável</span>';
               if (corrente > 7.0)
                 badge = '<span class="badge danger">SOBRECARGA</span>';
               else if (corrente > 5.0)
                 badge = '<span class="badge warning">Atenção</span>';
 
+              const custoItem = (potencia / 1000) * (2 / 3600) * TARIFA_KWH;
+
               return `
               <tr>
                 <td>${item.timestamp || "--:--:--"}</td>
                 <td>${item.espID || "ESP32"}</td>
                 <td>${corrente.toFixed(2)} A</td>
-                <td>${parseFloat(item.potencia || 0).toFixed(1)} W</td>
+                <td>${potencia.toFixed(1)} W</td>
                 <td>${parseFloat(item.temperatura || 0).toFixed(1)} °C</td>
                 <td>${parseFloat(item.umidade || 0).toFixed(1)} %</td>
+                <td>R$ ${custoItem.toFixed(4).replace(".", ",")}</td>
                 <td>${badge}</td>
               </tr>
             `;
             })
             .join("");
 
-          // Atualiza o gráfico com as leituras ordenadas cronologicamente
           if (powerChart) {
-            const dadosRevertidos = [...historico].reverse(); // Do mais antigo para o mais recente
+            const dadosRevertidos = [...historico].reverse();
             powerChart.data.labels = dadosRevertidos.map(
               (i) => i.timestamp || "",
             );

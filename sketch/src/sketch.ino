@@ -33,8 +33,11 @@ const int DHT_TYPE = DHT22;
 DHT dht(P_DHT, DHT_TYPE);
 
 const float R_TNS = 127.0; // Tensão simulada
-const float M_COR = 10.0;  // Corrente máxima
 const float L_COR = 7.0;   // Limite relay
+
+// Configurações do ACS712
+const float SENSIBILIDADE = 0.185; // 185 mV/A para o modelo de 10A (ou ajuste se o seu for 100mV/A)
+float tenOFF = 2.50;               // Será calibrado dinamicamente no setup
 
 unsigned long lSolic = 0;
 const unsigned long DELAY_ENVIO = 3000; // Envia a cada 3s
@@ -63,6 +66,27 @@ void connect()
   {
     Serial.println("Falha na conexão WiFi!");
   }
+}
+
+// Função para calibrar o ponto zero (offset) do sensor ao iniciar
+void calibrarACS()
+{
+  Serial.println("Calibrando o offset do ACS712 (mantenha sem carga)...");
+  long soma = 0;
+  int amostras = 500;
+  
+  for (int i = 0; i < amostras; i++)
+  {
+    soma += analogRead(P_ACS);
+    delay(2);
+  }
+  
+  float rawMedio = (float)soma / amostras;
+  float tenPin = (rawMedio / 4095.0) * 3.3;
+  tenOFF = tenPin * 1.5; // Considera o divisor de tensão na entrada
+  
+  Serial.print("Offset calibrado com sucesso! tenOFF = ");
+  Serial.println(tenOFF, 3);
 }
 
 void goSolic(float cor, float potn, float temp, float umid)
@@ -124,17 +148,20 @@ float calcCrRMS() {
     int raw = analogRead(P_ACS);
     float tenPin = (raw / 4095.0) * 3.3;
     float tenACS = tenPin * 1.5;
-    float tenOFF = 2.50;
-    float dif = tenACS - tenOFF;
+    float dif = tenACS - tenOFF; // Usa o offset dinâmico calibrado
     somaQuad += dif * dif;
     numAm++;
   }
+  
   float medQuad = somaQuad / numAm;
   float tenRMS = sqrt(medQuad);
-  float crRMS = tenRMS / 0.100;
-  if (crRMS < 0.1) {
+  float crRMS = tenRMS / SENSIBILIDADE;
+  
+  // Deadband/Threshold para eliminar o ruído residual de fundo do ADC
+  if (crRMS < 0.25) {
     crRMS = 0;
   }
+  
   return crRMS;
 }
 
@@ -147,7 +174,7 @@ void setup()
 
   uint32_t randomNumber = esp_random();
   espID = "ESP_" + String(randomNumber, HEX);
-  espID.toUpperCase(); // Deixa em maiúsculas para ficar mais limpo
+  espID.toUpperCase();
   Serial.print("ID Gerado para esta ESP32: ");
   Serial.println(espID);
   
@@ -157,6 +184,9 @@ void setup()
   analogSetAttenuation(ADC_11db);
   analogReadResolution(12);
   pinMode(P_ACS, INPUT);
+
+  // Calibra o sensor logo no início (certifique-se de ligar sem carga consumindo no relé)
+  calibrarACS();
 
   dht.begin();
 
@@ -175,7 +205,6 @@ void setup()
   display.println("Sistema Iniciado");
   display.display();
 
-  // Conecta no Wi-Fi do Wokwi
   connect();
 }
 

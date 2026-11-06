@@ -29,7 +29,7 @@ public class Cheddar {
         return response.body();
     }
     private String extrairValorJson2(String json, String chave) {
-        Pattern pattern = Pattern.compile("\"" + chave + "\"\\s*:\\s*\"([^\"]*)\"");
+        Pattern pattern = Pattern.compile("\"" + chave + "\"\\s*:\\s*\"?([^\",}]*)\"?");
         Matcher matcher = pattern.matcher(json);
         if (matcher.find()) {
             return matcher.group(1);

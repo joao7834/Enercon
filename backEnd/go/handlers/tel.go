@@ -24,7 +24,7 @@ func TelHandler(telemetriaChan chan<- models.Telemetria) http.HandlerFunc {
 			return
 		}
 
-		if tel.EspID == 0 {
+		if tel.EspID == "" {
 			log.Println("Error detected")
 			http.Error(w, "Error detected... ESP32 without ID", http.StatusBadRequest)
 			return
@@ -32,7 +32,7 @@ func TelHandler(telemetriaChan chan<- models.Telemetria) http.HandlerFunc {
 		telemetriaChan <- tel
 		go InviteJava(tel)
 
-		log.Printf("Telemetria recebida (ESP32 %.1f): Temp=%.1f°C | Umid=%.1f%% | Corr=%.2fA | Pot=%.1fW\n", tel.EspID, tel.Temperatura, tel.Umidade, tel.Corrente, tel.Potencia)
+		log.Printf("Telemetria recebida (ESP32 %s): Temp=%.1f°C | Umid=%.1f%% | Corr=%.2fA | Pot=%.1fW\n", tel.EspID, tel.Temperatura, tel.Umidade, tel.Corrente, tel.Potencia)
 
 		var response models.Resposta
 		const L_COR float32 = 7.0

@@ -5,7 +5,7 @@ type Telemetria struct {
 	Potencia    float32 `json:"potencia"`
 	Temperatura float32 `json:"temperatura"`
 	Umidade     float32 `json:"umidade"`
-	EspID       float32 `json:"espID"`
+	EspID       string  `json:"espID"`
 }
 
 type Resposta struct {

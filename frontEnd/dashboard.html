@@ -59,7 +59,6 @@
               <h1>Monitoramento em Tempo Real</h1>
               <p>Telemetria do sensor ESP32 / Sistema de Proteção Energética</p>
             </header>
-            <a href="index.html" class="btnVoltar"> ← Voltar ao Cadastro </a>
           </div>
 
           <!-- GRID DE MÉTRICAS -->
@@ -112,7 +111,6 @@
               </div>
             </div>
 
-            <!-- Consumo Estimado -->
             <div class="metricCard">
               <div class="cardIcon purple">
                 <img
@@ -128,7 +126,23 @@
               </div>
             </div>
 
-            <!-- Temperatura (DHT22) -->
+            <div class="metricCard">
+              <div class="cardIcon green">
+                <small
+                  style="
+                    font-weight: bold;
+                    font-size: 1.2rem;
+                    color: var(--green);
+                  "
+                  >R$</small
+                >
+              </div>
+              <div class="cardData">
+                <h3>Gasto Estimado</h3>
+                <p class="value" id="valGasto">R$ 0,00</p>
+              </div>
+            </div>
+
             <div class="metricCard">
               <div class="cardIcon red">
                 <small
@@ -142,7 +156,6 @@
               </div>
             </div>
 
-            <!-- Umidade (DHT22) -->
             <div class="metricCard">
               <div class="cardIcon cyan">
                 <small
@@ -156,7 +169,6 @@
               </div>
             </div>
 
-            <!-- Status do Relé de Proteção -->
             <div class="metricCard">
               <div class="cardIcon green" id="releIconBg">
                 <span class="statusBadge" id="releDot"></span>
@@ -174,7 +186,6 @@
             </div>
           </div>
 
-          <!-- ÁREA DO GRÁFICO DE HISTÓRICO -->
           <div class="contentBox chartBox">
             <h2>Gráfico de Potência em Tempo Real (W)</h2>
             <div class="chartWrapper">
@@ -195,6 +206,7 @@
                     <th>Potência (W)</th>
                     <th>Temp (°C)</th>
                     <th>Umid (%)</th>
+                    <th>R$ 0,00</th>
                     <th>Status</th>
                   </tr>
                 </thead>
