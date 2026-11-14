@@ -65,13 +65,13 @@ const server = http.createServer((req, res) => {
         }
 
         console.log(
-          `📥 [DASHBOARD ATUALIZADO] ID: ${dadosRecebidos.espID} | Corr: ${dadosRecebidos.corrente}A | Pot: ${dadosRecebidos.potencia}W`,
+          `DASHBOARD ATUALIZADO ID: ${dadosRecebidos.espID} | Corr: ${dadosRecebidos.corrente}A | Pot: ${dadosRecebidos.potencia}W`,
         );
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ status: "Sucesso" }));
       } catch (erro) {
-        console.error("❌ Erro ao parsear JSON no server.js:", erro.message);
+        console.error("Erro ao parsear JSON no server.js:", erro.message);
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ erro: "JSON inválido" }));
       }

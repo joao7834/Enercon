@@ -6,13 +6,12 @@
 #include <HTTPClient.h>
 
 // Net
-const char *SSID = "Wokwi-GUEST";
-const char *PASS = "";
+const char *SSID = "NOME-WIFI";
+const char *PASS = "PASS-WIFI";
 
 // Golang URL
-const char *GO_API_URL = "http://10.244.200.253:8080/telemetria";
+const char *GO_API_URL = "http://IPV4:8080/telemetria";
 
-// ID Dinâmico da ESP32
 String espID = "";
 
 // Oled
@@ -33,11 +32,11 @@ const int DHT_TYPE = DHT22;
 DHT dht(P_DHT, DHT_TYPE);
 
 const float R_TNS = 127.0; // Tensão simulada
-const float L_COR = 7.0;   // Limite relay
+const float L_COR = 9.0;   // Limite relay
 
-// Configurações do ACS712
-const float SENSIBILIDADE = 0.185; // 185 mV/A para o modelo de 10A (ou ajuste se o seu for 100mV/A)
-float tenOFF = 2.50;               // Será calibrado dinamicamente no setup
+// ACS712
+const float SENSIBILIDADE = 0.100;
+float tenOFF = 2.50;
 
 unsigned long lSolic = 0;
 const unsigned long DELAY_ENVIO = 3000; // Envia a cada 3s
@@ -68,7 +67,6 @@ void connect()
   }
 }
 
-// Função para calibrar o ponto zero (offset) do sensor ao iniciar
 void calibrarACS()
 {
   Serial.println("Calibrando o offset do ACS712 (mantenha sem carga)...");
@@ -83,7 +81,7 @@ void calibrarACS()
   
   float rawMedio = (float)soma / amostras;
   float tenPin = (rawMedio / 4095.0) * 3.3;
-  tenOFF = tenPin * 1.5; // Considera o divisor de tensão na entrada
+  tenOFF = tenPin * 1.5;
   
   Serial.print("Offset calibrado com sucesso! tenOFF = ");
   Serial.println(tenOFF, 3);
@@ -110,24 +108,20 @@ void goSolic(float cor, float potn, float temp, float umid)
   jsonPayload += "\"espID\":\"" + espID + "\"";
   jsonPayload += "}";
 
-  Serial.print("Enviando para o Go: ");
-  Serial.println(jsonPayload);
-
   int httpCode = http.POST(jsonPayload);
 
   if (httpCode > 0)
   {
     String resGo = http.getString();
-    Serial.print("HTTP Code Go: ");
-    Serial.println(httpCode);
-    Serial.print("Resposta Go: ");
-    Serial.println(resGo);
-
-    // Se o Go mandar cortar a energia
+    
     if (resGo.indexOf("\"cortar_rele\":true") > 0)
     {
-      Serial.println("COMANDO GO: DESLIGANDO RELÉ!");
-      digitalWrite(P_RLY, LOW);
+      Serial.println("COMANDO GO: DESLIGANDO RELÉ (Sobrecarga)!");
+      digitalWrite(P_RLY, LOW); 
+    }
+    else if (resGo.indexOf("\"cortar_rele\":false") > 0)
+    {
+      digitalWrite(P_RLY, HIGH);
     }
   }
   else
@@ -158,7 +152,7 @@ float calcCrRMS() {
   float crRMS = tenRMS / SENSIBILIDADE;
   
   // Deadband/Threshold para eliminar o ruído residual de fundo do ADC
-  if (crRMS < 0.25) {
+  if (crRMS < 0.05) {
     crRMS = 0;
   }
   
@@ -230,10 +224,6 @@ void loop()
   {
     digitalWrite(P_RLY, 0);
     proAt = true;
-  }
-  else
-  {
-    digitalWrite(P_RLY, 1);
   }
 
   Serial.print("Temp: ");
