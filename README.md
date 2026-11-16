@@ -58,6 +58,3 @@ O **Enercon** é um sistema completo de telemetria e monitoramento de consumo en
 - **Java JDK** (17 ou superior)
 - **Node** (24.21+)
 - **Arduino IDE** ou **PlatformIO** (para gravação no ESP32)
-   ```bash
-   git clone [https://github.com/joao7834/enercon.git](https://github.com/joao7834/enercon.git)
-   cd enercon
